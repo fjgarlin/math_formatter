@@ -10,6 +10,41 @@ namespace Drupal\math_formatter\Math;
 class PostfixLexer {
 
   /**
+   * Operand.
+   *
+   * @const string
+   */
+  const TOKEN_OPERAND = 'operand';
+
+  /**
+   * Operator.
+   *
+   * @const string
+   */
+  const TOKEN_OPERATOR = 'operator';
+
+  /**
+   * Parenthesis.
+   *
+   * @const string
+   */
+  const TOKEN_PARENTHESIS = 'parenthesis';
+
+  /**
+   * Parenthesis left position.
+   *
+   * @const string
+   */
+  const PARENTHESIS_LEFT = 'left';
+
+  /**
+   * Parenthesis right position.
+   *
+   * @const string
+   */
+  const PARENTHESIS_RIGHT = 'right';
+
+  /**
    * Input variable to transform.
    *
    * @var string
@@ -63,36 +98,36 @@ class PostfixLexer {
   protected function tokenize() {
     $this->tokens = [];
 
-    // TODO: hook Sebastian method here?
+    // TODO: hook Sebastian method here with more sophisticathed regex?
     $tokens = (array) explode(' ', $this->string);
+
     // kint($tokens);die;
     foreach ($tokens as $t) {
       $token = NULL;
 
       if (array_key_exists($t, $this->operators)) {
         $token = [
-          // TODO: make type class contants so that they can be reused.
-          'type' => 'operator',
+          'type' => self::TOKEN_OPERATOR,
           'value' => (string) $t,
           'priority' => $this->operators[$t],
         ];
       }
       elseif (is_numeric($t)) {
         $token = [
-          'type' => 'operand',
+          'type' => self::TOKEN_OPERAND,
           'value' => (float) $t,
         ];
       }
       elseif ('(' === $t) {
         $token = [
-          'type' => 'parenthesis',
-          'position' => 'left',
+          'type' => self::TOKEN_PARENTHESIS,
+          'position' => self::PARENTHESIS_LEFT,
         ];
       }
       elseif (')' === $t) {
         $token = [
-          'type' => 'parenthesis',
-          'position' => 'right',
+          'type' => self::TOKEN_PARENTHESIS,
+          'position' => self::PARENTHESIS_RIGHT,
         ];
       }
 
@@ -108,6 +143,7 @@ class PostfixLexer {
    * Reorder the tokens in a postfix notation.
    *
    * @see https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+   *   The solution intends to follow the steps shown in the above link.
    */
   protected function postfix() {
     $original = $this->tokens;

@@ -15,12 +15,13 @@ class Parser {
    * @param array $expression
    *   Postfix tokens to evaluate.
    *
+   * @see https://github.com/aboyadzhiev/php-math-parser/blob/master/src/Math/Parser.php#L84
+   *   Simplified version based on the above.
+   *
    * @return float
    *   Result of the expression given.
    */
   public function evaluate(array $expression) {
-    // TODO: do my own implementation.
-    // https://github.com/aboyadzhiev/php-math-parser/blob/master/src/Math/Parser.php#L84
     $stack = [];
 
     foreach ($expression as $token) {
@@ -28,11 +29,10 @@ class Parser {
       $type = isset($token['type']) ? $token['type'] : NULL;
       $value = isset($token['value']) ? $token['value'] : NULL;
 
-      // TODO: use type class contants defined in lexer instead of string.
-      if ($type == 'operand') {
+      if ($type == PostfixLexer::TOKEN_OPERAND) {
         array_push($stack, $value);
       }
-      elseif ($type == 'operator') {
+      elseif ($type == PostfixLexer::TOKEN_OPERATOR) {
         switch ($value) {
           case '+':
             array_push($stack, array_pop($stack) + array_pop($stack));
