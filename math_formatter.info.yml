@@ -1,0 +1,7 @@
+name: Math formatter
+type: module
+description: Provides a text formatter that will evaluate the expression using postfix notation and display the result of it.
+core: 8.x
+package: Custom
+dependencies:
+  - field
