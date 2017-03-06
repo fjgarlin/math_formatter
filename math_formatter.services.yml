@@ -1,0 +1,8 @@
+services:
+  math_formatter.lexer:
+    class: Drupal\math_formatter\Math\PostfixLexer
+    arguments: []
+
+  math_formatter.parser:
+    class: Drupal\math_formatter\Math\Parser
+    arguments: []
