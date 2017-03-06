@@ -101,11 +101,7 @@ class PostfixLexer {
    * @return array
    *   List of tokens obtained.
    */
-  protected function _extract_tokens($string) {
-    // Old version.
-    //return (array) explode(' ', $string);
-
-    // New version.
+  protected function extractTokens($string) {
     $tokens = [];
     $token = '';
     for ($i = 0; $i < strlen($string); $i++) {
@@ -140,8 +136,7 @@ class PostfixLexer {
   protected function tokenize() {
     $this->tokens = [];
 
-    // TODO: hook Sebastian method here with more sophisticathed regex?
-    $tokens = $this->_extract_tokens($this->string);
+    $tokens = $this->extractTokens($this->string);
 
     // kint($tokens);die;
     foreach ($tokens as $t) {
@@ -205,7 +200,7 @@ class PostfixLexer {
         $priority = isset($t['priority']) ? $t['priority'] : 0;
         // Pop operators from stack to output.
         while (($stack_operator = end($stack)) and
-            $stack_operator['type'] != 'parenthesis' and
+            $stack_operator['type'] != self::TOKEN_PARENTHESIS and
             $priority <= $stack_operator['priority']) {
           array_push($postfix, array_pop($stack));
         }

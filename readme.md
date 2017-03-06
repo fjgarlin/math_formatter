@@ -17,4 +17,6 @@ Provides a very basic field formatter for math expressions.
 - Save configuration, populate that field with an expression 
 (*ie: 3 * ( 4 + 7 + 6 ) * 6* ) and visit the node
 
-- Run unit tests: `./vendor/bin/phpunit -c web/core/phpunit.xml.dist web/modules/custom/math_formatter/`
+- Run unit tests: 
+`./vendor/bin/phpunit -c web/core/phpunit.xml.dist 
+web/modules/custom/math_formatter/`
