@@ -10,6 +10,13 @@ namespace Drupal\math_formatter\Math;
 class Parser {
 
   /**
+   * Not a Number.
+   *
+   * @const string
+   */
+  const NAN = 'NaN';
+
+  /**
    * Evaluates a given tokenized expression in postfix format.
    *
    * @param array $expression
@@ -23,8 +30,14 @@ class Parser {
    */
   public function evaluate(array $expression) {
     $stack = [];
+    $error = FALSE;
 
     foreach ($expression as $token) {
+      if ($error) {
+        // Don't process any further.
+        return self::NAN;
+      }
+
       // At this point there are no parenthesis.
       $type = isset($token['type']) ? $token['type'] : NULL;
       $value = isset($token['value']) ? $token['value'] : NULL;
@@ -33,34 +46,41 @@ class Parser {
         array_push($stack, $value);
       }
       elseif ($type == PostfixLexer::TOKEN_OPERATOR) {
-        switch ($value) {
-          case '+':
-            array_push($stack, array_pop($stack) + array_pop($stack));
-            break;
+        if (count($stack) < 2) {
+          // Error.
+          $stack = [];
+          $error = TRUE;
+        }
+        else {
+          switch ($value) {
+            case '+':
+              array_push($stack, array_pop($stack) + array_pop($stack));
+              break;
 
-          case '-':
-            $n = array_pop($stack);
-            array_push($stack, array_pop($stack) - $n);
-            break;
+            case '-':
+              $n = array_pop($stack);
+              array_push($stack, array_pop($stack) - $n);
+              break;
 
-          case '*':
-            array_push($stack, array_pop($stack) * array_pop($stack));
-            break;
+            case '*':
+              array_push($stack, array_pop($stack) * array_pop($stack));
+              break;
 
-          case '/':
-            $n = array_pop($stack);
-            array_push($stack, array_pop($stack) / $n);
-            break;
+            case '/':
+              $n = array_pop($stack);
+              array_push($stack, array_pop($stack) / $n);
+              break;
 
-          default:
-            // TODO: Exception, watchdog, return NaN?
-            break;
+            default:
+              $error = TRUE;
+              break;
 
+          }
         }
       }
     }
 
-    return count($stack) ? end($stack) : 'NaN';
+    return (!$error and count($stack)) ? end($stack) : self::NAN;
   }
 
 }

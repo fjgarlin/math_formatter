@@ -18,7 +18,7 @@ class BaseTest extends UnitTestCase {
    *
    * @param string $input
    *   Input to test.
-   * @param array $result
+   * @param string $result
    *   Data to test.
    *
    * @dataProvider lexerData
@@ -26,6 +26,7 @@ class BaseTest extends UnitTestCase {
   public function testLexerParser($input, $result) {
     $lexer = new PostfixLexer();
     $parser = new Parser();
+
     $this->assertEquals($parser->evaluate($lexer->transform($input)), $result);
   }
 
@@ -39,6 +40,12 @@ class BaseTest extends UnitTestCase {
     return [
       ['3 * ( 5 + 3 + 5 ) * 6 ', '234'],
       ['3 * 6 ', '18'],
+      ['3*6 ', '18'],
+      ['3*6+9+1*2 ', '29'],
+      ['3    *   6   ', '18'],
+      ['*3*6 ', 'NaN'],
+      ['3*6* ', 'NaN'],
+      ['Hello', 'NaN'],
     ];
   }
 

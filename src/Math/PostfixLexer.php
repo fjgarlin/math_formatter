@@ -93,13 +93,55 @@ class PostfixLexer {
   }
 
   /**
+   * Extracts tokens from an input string.
+   *
+   * @param string $string
+   *   Input string.
+   *
+   * @return array
+   *   List of tokens obtained.
+   */
+  protected function _extract_tokens($string) {
+    // Old version.
+    //return (array) explode(' ', $string);
+
+    // New version.
+    $tokens = [];
+    $token = '';
+    for ($i = 0; $i < strlen($string); $i++) {
+      $c = trim($string[$i]);
+      if ($c) {
+        if ($c == '.' or is_numeric($c)) {
+          // Numerical character.
+          $token .= $c;
+        }
+        else {
+          // Operand or parenthesis.
+          if (strlen($token)) {
+            $tokens[] = $token;
+            $token = '';
+          }
+          $tokens[] = $c;
+        }
+      }
+    }
+
+    // Anything left in token? Add it to the array.
+    if (strlen($token)) {
+      $tokens[] = $token;
+    }
+
+    return $tokens;
+  }
+
+  /**
    * Tokenize the string that was given.
    */
   protected function tokenize() {
     $this->tokens = [];
 
     // TODO: hook Sebastian method here with more sophisticathed regex?
-    $tokens = (array) explode(' ', $this->string);
+    $tokens = $this->_extract_tokens($this->string);
 
     // kint($tokens);die;
     foreach ($tokens as $t) {
@@ -155,11 +197,11 @@ class PostfixLexer {
       $t = array_shift($original);
       $type = $t['type'];
 
-      if ($type == 'operand') {
+      if ($type == self::TOKEN_OPERAND) {
         // Send operand to output.
         array_push($postfix, $t);
       }
-      elseif ($type == 'operator') {
+      elseif ($type == self::TOKEN_OPERATOR) {
         $priority = isset($t['priority']) ? $t['priority'] : 0;
         // Pop operators from stack to output.
         while (($stack_operator = end($stack)) and
@@ -170,20 +212,20 @@ class PostfixLexer {
         // And include our operator in the stack.
         array_push($stack, $t);
       }
-      elseif ($type == 'parenthesis' and $t['position'] == 'left') {
+      elseif ($type == self::TOKEN_PARENTHESIS and $t['position'] == self::PARENTHESIS_LEFT) {
         // Push parenthesis to stack.
         array_push($stack, $t);
       }
-      elseif ($type == 'parenthesis' and $t['position'] == 'right') {
+      elseif ($type == self::TOKEN_PARENTHESIS and $t['position'] == self::PARENTHESIS_RIGHT) {
         // Add operators to the output.
         while (($stack_operator = end($stack)) and
-            $stack_operator['type'] != 'parenthesis') {
+            $stack_operator['type'] != self::TOKEN_PARENTHESIS) {
           array_push($postfix, array_pop($stack));
         }
         // kint($stack);die;
         // Remove parenthesis from stack.
         $stack_operator = end($stack);
-        if ($stack_operator['type'] == 'parenthesis') {
+        if ($stack_operator['type'] == self::TOKEN_PARENTHESIS) {
           array_pop($stack);
         }
         else {
@@ -197,7 +239,7 @@ class PostfixLexer {
     if (!empty($stack)) {
       $error = FALSE;
       while (($item = array_pop($stack)) and !$error) {
-        if ($item['type'] == 'parenthesis') {
+        if ($item['type'] == self::TOKEN_PARENTHESIS) {
           $error = TRUE;
         }
         else {
