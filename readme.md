@@ -17,11 +17,11 @@ Provides a very basic field formatter for math expressions.
 - Save configuration, populate that field with an expression 
 (*ie: 3 * ( 4 + 7 + 6 ) * 6* ) and visit the node
 
+- Run unit tests: `./vendor/bin/phpunit -c web/core/phpunit.xml.dist web/modules/custom/math_formatter/`
+
 ## TODO
 
 - **IMPORTANT:** Improve string parsing method as at the moment the 
 tokens need to be separated by space.
 
-- Dependency injection in *MathFormatter*.
-
-- Unit Tests and more testing in general.
+- Add more tests.
